@@ -2,33 +2,50 @@
   <div class="wrapper-content wrapper-content--fixed">
     <section>
       <div class="container">
-        <p>debug sort:{{currentSort}} direction: {{ currentSortDir}}</p>
+
+        <!-- debug -->
+        <p style="text-align:center;">
+          <span>debug sort: {{ currentSort }}, direction: {{ currentSortDir}} </span>
+          <span>page: {{ this.page.current }}, items per page: {{ this.page.length }} </span>
+        </p>
+
         <!-- table -->
         <table>
 
           <!-- head -->
           <thead>
             <tr>
-              <th>Image</th>
-              <th @click="sort('firstName')">Name</th>
-              <th @click="sort('age')">Age</th>
-              <th @click="sort('gender')">Gender</th>
+              <th></th>
+              <th @click="sort('firstName')">Name {{sortIcon('firstName')}} </th>
+              <th @click="sort('age')">Age {{sortIcon('age')}} </th>
+              <th @click="sort('gender')">Gender {{sortIcon('gender')}} </th>
             </tr>
           </thead>
 
           <!-- body -->
           <tbody>
             <tr v-for="user in usersSort" :key="user.id">
-              <td><img :src="user.image" alt="" width="100"></td>
+              <td><img :src="user.image" alt=""></td>
               <td>{{ user.firstName }}</td>
               <td>{{ user.age }}</td>
               <td>{{ user.gender }}</td>
             </tr>
           </tbody>
-        </table>        
+        </table>
 
       </div>
     </section>
+
+    <!-- buttons -->
+    <section>
+      <div class="container">
+        <div class="button-list">
+          <div @click="prevPage" class="btn btnPrimary">←</div>
+          <div @click="nextPage" class="btn btnPrimary">→</div>
+        </div>
+      </div>
+    </section>
+
   </div>
 </template>
 
@@ -37,12 +54,13 @@
   export default {
     data() {
       return {
-        users: [
-
-        ],
+        users: [],
         currentSort: '',
-        currentSortDir: 'asc'
-
+        currentSortDir: 'asc',
+        page: {
+          current: 1,
+          length: 3
+        }
       }
     },
     created() {
@@ -52,12 +70,6 @@
           this.users = response.data.users
         })
         .catch(error => console.error(error))
-
-      // this.users = [
-      //   { id: 1, name: 'Jack', age: 22, gender: 'male' },
-      //   { id: 2, name: 'Alex', age: 24, gender: 'male' },
-      // ]
-
     },
     computed: {
       usersSort() {
@@ -67,6 +79,10 @@
           if (a[this.currentSort] < b[this.currentSort]) return -1 * mod
           if (a[this.currentSort] > b[this.currentSort]) return 1 * mod
           return 0
+        }).filter((row, index) => {
+          let start = (this.page.current - 1) * this.page.length
+          let end = this.page.current * this.page.length
+          if (index >= start && index < end) return true;
         })
       }
     },
@@ -76,7 +92,41 @@
           this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc'
         }
         this.currentSort = e
+      },
+      //pagination
+      nextPage() {
+        if ((this.page.current * this.page.length) < this.users.length) {
+          this.page.current += 1
+        }
+      },
+      prevPage() {
+        if (this.page.current > 1) {
+          this.page.current -= 1
+        }
+      },
+      sortIcon(e) {
+        if (e === this.currentSort && this.currentSortDir === 'desc') {
+          return '↑'
+        }
+        return '↓'
       }
     }
   }
 </script>
+<style>
+  img {
+    width: 100px;
+    height: auto;
+    border-radius: 50%;
+  }
+
+  .button-list {
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn {
+    border-radius: 60px;
+    margin: 0 20px;
+  }
+</style>
