@@ -1,4 +1,7 @@
-# vue-cli
+# Users CRM
+## Test users CRM on Vue 2, Vuex, Vue-router and load users from external API with axios
+
+![](./src/assets/img/Screen.PNG)
 
 ## Project setup
 ```
